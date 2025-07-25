@@ -1,0 +1,92 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<h2>Admin Dashboard</h2>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5>Products</h5>
+                        <p>Manage inventory</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-box fa-2x"></i>
+                    </div>
+                </div>
+                <a href="@Url.Action("Products")" class="btn btn-light btn-sm">Manage Products</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5>Orders</h5>
+                        <p>Track orders</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-shopping-bag fa-2x"></i>
+                    </div>
+                </div>
+                <a href="@Url.Action("Orders")" class="btn btn-light btn-sm">View Orders</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5>Users</h5>
+                        <p>Manage customers</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+                <a href="@Url.Action("Users")" class="btn btn-light btn-sm">View Users</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5>Payments</h5>
+                        <p>View transactions</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-credit-card fa-2x"></i>
+                    </div>
+                </div>
+                <a href="@Url.Action("Payments")" class="btn btn-light btn-sm">View Payments</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card bg-secondary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5>Categories</h5>
+                        <p>Manage categories</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-tags fa-2x"></i>
+                    </div>
+                </div>
+                <a href="@Url.Action("Categories")" class="btn btn-light btn-sm">Manage Categories</a>
+            </div>
+        </div>
+    </div>
+</div>

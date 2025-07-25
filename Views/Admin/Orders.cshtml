@@ -1,0 +1,74 @@
+@model IEnumerable<Order>
+@{
+    ViewData["Title"] = "Manage Orders";
+}
+
+<h2>Manage Orders</h2>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Order Date</th>
+                <th>Total Amount</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>#@order.OrderID</td>
+                    <td>@order.Customer.FullName</td>
+                    <td>@order.OrderDate.ToString("MMM dd, yyyy")</td>
+                    <td>$@order.TotalAmount.ToString("F2")</td>
+                    <td>
+                        <span class="badge @(order.Status == "Pending" ? "bg-warning" : order.Status == "Shipped" ? "bg-success" : "bg-secondary")">
+                            @order.Status
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                Update Status
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <form method="post" action="@Url.Action("UpdateOrderStatus")">
+                                        <input type="hidden" name="orderId" value="@order.OrderID">
+                                        <input type="hidden" name="status" value="Pending">
+                                        <button type="submit" class="dropdown-item">Pending</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form method="post" action="@Url.Action("UpdateOrderStatus")">
+                                        <input type="hidden" name="orderId" value="@order.OrderID">
+                                        <input type="hidden" name="status" value="Shipped">
+                                        <button type="submit" class="dropdown-item">Shipped</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form method="post" action="@Url.Action("UpdateOrderStatus")">
+                                        <input type="hidden" name="orderId" value="@order.OrderID">
+                                        <input type="hidden" name="status" value="Delivered">
+                                        <button type="submit" class="dropdown-item">Delivered</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <h4>No orders found</h4>
+    </div>
+}

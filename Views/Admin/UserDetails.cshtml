@@ -1,0 +1,70 @@
+@model ApplicationUser
+@{
+    ViewData["Title"] = "User Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>User Details</h2>
+    <a href="@Url.Action("Users")" class="btn btn-secondary">Back to Users</a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Edit User Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="@Url.Action("EditUser")">
+                    <input type="hidden" name="Id" value="@Model.Id">
+                    <input type="hidden" name="Email" value="@Model.Email">
+                    <input type="hidden" name="UserName" value="@Model.UserName">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" value="@Model.Email" readonly>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="FullName" class="form-control" value="@Model.FullName" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <textarea name="Address" class="form-control" rows="3" required>@Model.Address</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <div>
+                            @if (Model.LockoutEnd.HasValue && Model.LockoutEnd > DateTime.Now)
+                            {
+                                <span class="badge bg-danger">Locked</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Update User</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6>User Statistics</h6>
+            </div>
+            <div class="card-body">
+                <p><strong>User ID:</strong> @Model.Id</p>
+                <p><strong>Email Confirmed:</strong> @(Model.EmailConfirmed ? "Yes" : "No")</p>
+                <p><strong>Phone:</strong> @(string.IsNullOrEmpty(Model.PhoneNumber) ? "Not provided" : Model.PhoneNumber)</p>
+            </div>
+        </div>
+    </div>
+</div>

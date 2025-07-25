@@ -1,0 +1,18 @@
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="text-center py-5">
+    <i class="fas fa-lock fa-4x text-danger mb-4"></i>
+    <h2>Access Denied</h2>
+    <p class="lead">You don't have permission to access this resource.</p>
+    <p>Please contact an administrator if you believe this is an error.</p>
+    
+    <div class="mt-4">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Go Home</a>
+        @if (!User.Identity!.IsAuthenticated)
+        {
+            <a href="@Url.Action("Login")" class="btn btn-outline-primary">Login</a>
+        }
+    </div>
+</div>

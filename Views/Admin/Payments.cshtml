@@ -1,0 +1,51 @@
+@model IEnumerable<Payment>
+@{
+    ViewData["Title"] = "Manage Payments";
+}
+
+<h2>Payment Transactions</h2>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Transaction ID</th>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Payment Method</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var payment in Model)
+            {
+                <tr>
+                    <td>@payment.TransactionID</td>
+                    <td>#@payment.OrderID</td>
+                    <td>@payment.Order.Customer.FullName</td>
+                    <td>@payment.PaymentMethod</td>
+                    <td>$@payment.Amount.ToString("F2")</td>
+                    <td>@payment.PaymentDate.ToString("MMM dd, yyyy HH:mm")</td>
+                    <td>
+                        <span class="badge @(payment.Status == "Completed" ? "bg-success" : payment.Status == "Pending" ? "bg-warning" : "bg-danger")">
+                            @payment.Status
+                        </span>
+                    </td>
+                    <td>
+                        <a href="@Url.Action("PaymentDetails", new { id = payment.PaymentID })" class="btn btn-sm btn-outline-info">View Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <h4>No payment transactions found</h4>
+    </div>
+}

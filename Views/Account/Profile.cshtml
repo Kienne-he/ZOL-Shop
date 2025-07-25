@@ -1,0 +1,124 @@
+@model ApplicationUser
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <img src="~/images/profiles/@Model.ProfileImage" alt="Profile" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;" onerror="this.src='/images/default-avatar.jpg'">
+                <h5>@Model.FullName</h5>
+                <p class="text-muted">@Model.Email</p>
+                <p><small>Member since @Model.CreatedAt.ToString("MMM yyyy")</small></p>
+                @if (Model.LastLoginAt.HasValue)
+                {
+                    <p><small>Last login: @Model.LastLoginAt.Value.ToString("MMM dd, yyyy")</small></p>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Edit Profile</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Profile Picture</label>
+                                <input type="file" name="profileImage" class="form-control" accept="image/*">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" name="FullName" class="form-control" value="@Model.FullName">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Date of Birth</label>
+                                <input type="date" name="DateOfBirth" class="form-control" value="@Model.DateOfBirth.ToString("yyyy-MM-dd")">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Gender</label>
+                                <select name="Gender" class="form-select">
+                                    <option value="">Select Gender</option>
+                                    @if (Model.Gender == "Male")
+                                    {
+                                        <option value="Male" selected>Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    }
+                                    else if (Model.Gender == "Female")
+                                    {
+                                        <option value="Male">Male</option>
+                                        <option value="Female" selected>Female</option>
+                                        <option value="Other">Other</option>
+                                    }
+                                    else if (Model.Gender == "Other")
+                                    {
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other" selected>Other</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" name="PhoneNumber" class="form-control" value="@Model.PhoneNumber">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <textarea name="Address" class="form-control" rows="3">@Model.Address</textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">City</label>
+                                <input type="text" name="City" class="form-control" value="@Model.City">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Country</label>
+                                <input type="text" name="Country" class="form-control" value="@Model.Country">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Postal Code</label>
+                                <input type="text" name="PostalCode" class="form-control" value="@Model.PostalCode">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                        <a href="@Url.Action("ChangePassword")" class="btn btn-outline-warning">Change Password</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

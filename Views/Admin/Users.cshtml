@@ -1,0 +1,68 @@
+@model IEnumerable<ApplicationUser>
+@{
+    ViewData["Title"] = "Manage Users";
+}
+
+<h2>Manage Users</h2>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Address</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.FullName</td>
+                    <td>@user.Email</td>
+                    <td>@user.Address</td>
+                    <td>
+                        @if (user.LockoutEnd.HasValue && user.LockoutEnd > DateTime.Now)
+                        {
+                            <span class="badge bg-danger">Locked</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                    </td>
+                    <td>
+                        <a href="@Url.Action("UserDetails", new { id = user.Id })" class="btn btn-sm btn-outline-info">View</a>
+                        <form method="post" action="@Url.Action("ToggleUserStatus")" style="display: inline;">
+                            <input type="hidden" name="userId" value="@user.Id">
+                            @if (user.LockoutEnd.HasValue && user.LockoutEnd > DateTime.Now)
+                            {
+                                <button type="submit" class="btn btn-sm btn-success">Unlock</button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Lock this user?')">Lock</button>
+                            }
+                        </form>
+                        @if (user.Email != "admin@zolshop.com")
+                        {
+                            <form method="post" action="@Url.Action("DeleteUser")" style="display: inline;">
+                                <input type="hidden" name="id" value="@user.Id">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this user? This action cannot be undone.')">Delete</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <h4>No users found</h4>
+    </div>
+}

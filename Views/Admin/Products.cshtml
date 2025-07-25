@@ -1,0 +1,47 @@
+@model IEnumerable<Product>
+@{
+    ViewData["Title"] = "Manage Products";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Manage Products</h2>
+    <a href="@Url.Action("CreateProduct")" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add Product
+    </a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in Model)
+            {
+                <tr>
+                    <td>
+                        <img src="~/images/@product.Image" alt="@product.Name" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.src='/images/placeholder.jpg'">
+                    </td>
+                    <td>@product.Name</td>
+                    <td>@product.Category.Name</td>
+                    <td>$@product.Price.ToString("F2")</td>
+                    <td>@product.Stock</td>
+                    <td>
+                        <a href="@Url.Action("EditProduct", new { id = product.ProductID })" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <form method="post" action="@Url.Action("DeleteProduct")" style="display: inline;">
+                            <input type="hidden" name="id" value="@product.ProductID">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this product?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

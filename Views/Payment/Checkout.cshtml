@@ -1,0 +1,120 @@
+@model ZOLShop.Models.CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <h2>Checkout</h2>
+        
+        <form method="post" action="@Url.Action("ProcessPayment")">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Shipping Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Shipping Address</label>
+                        <textarea name="ShippingAddress" class="form-control" rows="3" required>@Model.ShippingAddress</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Payment Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Payment Method</label>
+                        <select name="PaymentMethod" class="form-select" required>
+                            <option value="Credit Card">Credit Card</option>
+                            <option value="PayPal">PayPal</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                        </select>
+                    </div>
+                    
+                    <div id="creditCardFields">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Card Holder Name</label>
+                                    <input type="text" name="CardHolderName" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Card Number</label>
+                                    <input type="text" name="CardNumber" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Expiry Date</label>
+                                    <input type="text" name="ExpiryDate" class="form-control" placeholder="MM/YY" maxlength="5" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">CVV</label>
+                                    <input type="text" name="CVV" class="form-control" placeholder="123" maxlength="4" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a href="@Url.Action("Index", "Cart")" class="btn btn-secondary">Back to Cart</a>
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-credit-card"></i> Pay $@Model.TotalAmount.ToString("F2")
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Order Summary</h5>
+            </div>
+            <div class="card-body">
+                @foreach (var item in Model.CartDetails)
+                {
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>@item.Product.Name x @item.Quantity</span>
+                        <span>$@item.Price.ToString("F2")</span>
+                    </div>
+                }
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong>Total: $@Model.TotalAmount.ToString("F2")</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Format card number input
+        document.querySelector('input[name="CardNumber"]').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+            let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+            e.target.value = formattedValue;
+        });
+
+        // Format expiry date
+        document.querySelector('input[name="ExpiryDate"]').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            e.target.value = value;
+        });
+    </script>
+}

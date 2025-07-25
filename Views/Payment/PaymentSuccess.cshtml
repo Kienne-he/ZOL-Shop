@@ -1,0 +1,43 @@
+@{
+    ViewData["Title"] = "Payment Successful";
+    var order = ViewBag.Order as Order;
+    var payment = ViewBag.Payment as Payment;
+}
+
+<div class="text-center py-5">
+    <i class="fas fa-check-circle fa-4x text-success mb-4"></i>
+    <h2>Payment Successful!</h2>
+    <p class="lead">Your order has been confirmed and payment processed</p>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Payment Details</h5>
+                    <p><strong>Transaction ID:</strong> @payment?.TransactionID</p>
+                    <p><strong>Payment Method:</strong> @payment?.PaymentMethod</p>
+                    <p><strong>Amount Paid:</strong> $@payment?.Amount.ToString("F2")</p>
+                    <p><strong>Payment Date:</strong> @payment?.PaymentDate.ToString("MMM dd, yyyy HH:mm")</p>
+                    <p><strong>Status:</strong> <span class="badge bg-success">@payment?.Status</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Order Information</h5>
+                    <p><strong>Order ID:</strong> #@order?.OrderID</p>
+                    <p><strong>Order Date:</strong> @order?.OrderDate.ToString("MMM dd, yyyy")</p>
+                    <p><strong>Total Amount:</strong> $@order?.TotalAmount.ToString("F2")</p>
+                    <p><strong>Status:</strong> <span class="badge bg-primary">@order?.Status</span></p>
+                    <p><strong>Shipping Address:</strong> @order?.ShippingAddress</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Continue Shopping</a>
+    </div>
+</div>

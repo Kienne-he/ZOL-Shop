@@ -1,0 +1,478 @@
+@model IEnumerable<Product>
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>Welcome to ZOL Shop</h2>
+        
+        <!-- Advanced Search and Filter Form -->
+        <div class="card mb-4 filter-card">
+            <div class="card-header bg-light border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-primary">
+                        <i class="fas fa-search me-2"></i>Search & Filter Products
+                    </h5>
+                    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                        <i class="fas fa-sliders-h me-1"></i>Filters
+                    </button>
+                </div>
+            </div>
+            <div id="filterCollapse" class="collapse show">
+                <div class="card-body p-4">
+                    <form method="get" id="filterForm">
+                        <div class="row g-4">
+                            <!-- Search Bar with Autocomplete -->
+                            <div class="col-md-5">
+                                <label class="form-label fw-semibold text-dark">
+                                    <i class="fas fa-search me-1 text-primary"></i>Search Products
+                                </label>
+                                <div class="input-group position-relative search-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-search text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-start-0 ps-0" name="searchString" id="searchInput" placeholder="Search by name, description, category..." value="@ViewBag.SearchString" autocomplete="off">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        Search
+                                    </button>
+                                    <div id="searchSuggestions" class="position-absolute bg-white border rounded-3 shadow" style="top: 100%; left: 0; right: 0; z-index: 1000; display: none; max-height: 300px; overflow-y: auto;"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Category Filter -->
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold text-dark">
+                                    <i class="fas fa-tags me-1 text-primary"></i>Category
+                                </label>
+                                <select name="categoryId" class="form-select form-select-modern" onchange="document.getElementById('filterForm').submit()">
+                                    <option value="">🏷️ All Categories</option>
+                                    @foreach (var category in (List<Category>)ViewBag.Categories)
+                                    {
+                                        <option value="@category.CategoryID">@category.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            
+                            <!-- Price Range -->
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold text-dark">
+                                    <i class="fas fa-dollar-sign me-1 text-success"></i>Min Price
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">$</span>
+                                    <input type="number" class="form-control" name="minPrice" placeholder="0" value="@ViewBag.MinPrice" step="0.01" min="@ViewBag.MinProductPrice" max="@ViewBag.MaxProductPrice">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold text-dark">
+                                    <i class="fas fa-dollar-sign me-1 text-success"></i>Max Price
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">$</span>
+                                    <input type="number" class="form-control" name="maxPrice" placeholder="999" value="@ViewBag.MaxPrice" step="0.01" min="@ViewBag.MinProductPrice" max="@ViewBag.MaxProductPrice">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4 align-items-end">
+                            <!-- Sort Options -->
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold text-dark">
+                                    <i class="fas fa-sort me-1 text-info"></i>Sort By
+                                </label>
+                                <select name="sortBy" class="form-select form-select-modern" onchange="document.getElementById('filterForm').submit()">
+                                    <option value="">🔤 Name (A-Z)</option>
+                                    <option value="name_desc">🔥 Name (Z-A)</option>
+                                    <option value="price">💰 Price (Low-High)</option>
+                                    <option value="price_desc">💸 Price (High-Low)</option>
+                                    <option value="rating">⭐ Highest Rated</option>
+                                    <option value="newest">🆕 Newest First</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Stock Filter -->
+                            <div class="col-md-3">
+                                <div class="form-check form-switch mt-4">
+                                    <input class="form-check-input" type="checkbox" name="inStock" value="true" @(ViewBag.InStock == true ? "checked" : "") onchange="document.getElementById('filterForm').submit()" id="stockSwitch">
+                                    <label class="form-check-label fw-semibold" for="stockSwitch">
+                                        <i class="fas fa-box me-1 text-success"></i>In Stock Only
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="col-md-6 text-end">
+                                <button type="submit" class="btn btn-primary btn-lg me-2">
+                                    <i class="fas fa-search me-2"></i>Apply Filters
+                                </button>
+                                <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-lg">
+                                    <i class="fas fa-refresh me-2"></i>Clear All
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Price Range Slider -->
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Price Range: $<span id="priceRangeDisplay">@ViewBag.MinProductPrice - @ViewBag.MaxProductPrice</span></label>
+                                <div class="d-flex align-items-center">
+                                    <span class="me-2">$@ViewBag.MinProductPrice</span>
+                                    <input type="range" class="form-range flex-grow-1" id="priceRange" min="@ViewBag.MinProductPrice" max="@ViewBag.MaxProductPrice" step="0.01">
+                                    <span class="ms-2">$@ViewBag.MaxProductPrice</span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Summary -->
+        <div class="card border-0 bg-light mb-4">
+            <div class="card-body py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-list me-2 text-primary"></i>
+                        <span class="fw-semibold">Showing @Model.Count() products</span>
+                        @if (!string.IsNullOrEmpty(ViewBag.SearchString as string))
+                        {
+                            <span class="text-muted ms-1">for "<strong>@ViewBag.SearchString</strong>"</span>
+                        }
+                    </div>
+                    <div class="d-flex gap-2">
+                        @if (ViewBag.CategoryId != null)
+                        {
+                            var selectedCategory = ((List<Category>)ViewBag.Categories).FirstOrDefault(c => c.CategoryID == ViewBag.CategoryId);
+                            <span class="badge bg-primary rounded-pill px-3 py-2">
+                                <i class="fas fa-tag me-1"></i>@selectedCategory?.Name
+                            </span>
+                        }
+                        @if (ViewBag.MinPrice != null || ViewBag.MaxPrice != null)
+                        {
+                            <span class="badge bg-success rounded-pill px-3 py-2">
+                                <i class="fas fa-dollar-sign me-1"></i>$@(ViewBag.MinPrice ?? 0) - $@(ViewBag.MaxPrice ?? ViewBag.MaxProductPrice)
+                            </span>
+                        }
+                        @if (ViewBag.InStock == true)
+                        {
+                            <span class="badge bg-info rounded-pill px-3 py-2">
+                                <i class="fas fa-check me-1"></i>In Stock
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Products Grid -->
+<div class="row">
+    @foreach (var product in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 product-card">
+                <img src="~/images/@product.Image" class="card-img-top" alt="@product.Name" style="height: 200px; object-fit: cover;" onerror="this.src='/images/placeholder.jpg'">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">@product.Name</h5>
+                    <p class="card-text">@product.Description</p>
+                    <p class="text-muted">Category: @(product.Category?.Name ?? "Uncategorized")</p>
+                    <div class="mt-auto">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="h5 price">$@product.Price.ToString("F2")</span>
+                            <small class="text-muted">Stock: @product.Stock</small>
+                        </div>
+                        <div class="mt-2">
+                            <a href="@Url.Action("Details", new { id = product.ProductID })" class="btn btn-outline-primary btn-sm">View Details</a>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="quickView(@product.ProductID)" data-bs-toggle="modal" data-bs-target="#quickViewModal">
+                                <i class="fas fa-eye"></i> Quick View
+                            </button>
+                            @if (User.Identity!.IsAuthenticated && product.Stock > 0)
+                            {
+                                <button class="btn btn-primary btn-sm" onclick="addToCart(@product.ProductID)">
+                                    <i class="fas fa-cart-plus"></i> Add to Cart
+                                </button>
+                            }
+                            else if (product.Stock == 0)
+                            {
+                                <button class="btn btn-secondary btn-sm" disabled>
+                                    <i class="fas fa-times"></i> Out of Stock
+                                </button>
+                            }
+                        </div>
+                        @if (product.Reviews.Any())
+                        {
+                            <div class="mt-2">
+                                @{
+                                    var avgRating = product.Reviews.Average(r => r.Rating);
+                                }
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="fas fa-star @(i <= avgRating ? "text-warning" : "text-muted")" style="font-size: 0.8em;"></i>
+                                }
+                                <small class="text-muted ms-1">(@product.Reviews.Count reviews)</small>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="mt-2">
+                                <small class="text-muted">No reviews yet</small>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+        <h4>No products found</h4>
+        <p>Try adjusting your search criteria or browse our categories</p>
+        <div class="mt-3">
+            @foreach (var category in (List<Category>)ViewBag.Categories)
+            {
+                <a href="@Url.Action("Index", new { categoryId = category.CategoryID })" class="btn btn-outline-primary btn-sm me-2 mb-2">
+                    @category.Name
+                </a>
+            }
+        </div>
+    </div>
+}
+
+<!-- Quick View Modal -->
+<div class="modal fade" id="quickViewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Product Quick View</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="quickViewContent">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Price range slider functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const priceRange = document.getElementById('priceRange');
+            const priceDisplay = document.getElementById('priceRangeDisplay');
+            const minPriceInput = document.querySelector('input[name="minPrice"]');
+            const maxPriceInput = document.querySelector('input[name="maxPrice"]');
+            
+            if (priceRange) {
+                priceRange.addEventListener('input', function() {
+                    const value = this.value;
+                    priceDisplay.textContent = `@ViewBag.MinProductPrice - ${value}`;
+                    maxPriceInput.value = value;
+                });
+            }
+            
+            // Auto-submit on price input change
+            const priceInputs = document.querySelectorAll('input[name="minPrice"], input[name="maxPrice"]');
+            priceInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    setTimeout(() => {
+                        document.getElementById('filterForm').submit();
+                    }, 500);
+                });
+            });
+            
+            // Search on Enter key
+            document.querySelector('input[name="searchString"]').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('filterForm').submit();
+                }
+            });
+        });
+        
+        function addToCart(productId) {
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            button.disabled = true;
+            
+            fetch('@Url.Action("AddToCart", "Cart")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'productId=' + productId + '&quantity=1'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    button.innerHTML = '<i class="fas fa-check"></i> Added!';
+                    button.classList.remove('btn-primary');
+                    button.classList.add('btn-success');
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.classList.remove('btn-success');
+                        button.classList.add('btn-primary');
+                        button.disabled = false;
+                    }, 2000);
+                } else {
+                    alert(data.message || 'Error adding to cart');
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error adding to cart');
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        }
+        
+        // Search suggestions
+        let searchTimeout;
+        const searchInput = document.getElementById('searchInput');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                const query = this.value.trim();
+                
+                if (query.length < 2) {
+                    searchSuggestions.style.display = 'none';
+                    return;
+                }
+                
+                searchTimeout = setTimeout(() => {
+                    fetch(`@Url.Action("Search", "Product")?query=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            displaySearchSuggestions(data);
+                        });
+                }, 300);
+            });
+            
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                    searchSuggestions.style.display = 'none';
+                }
+            });
+        }
+        
+        function displaySearchSuggestions(products) {
+            if (products.length === 0) {
+                searchSuggestions.style.display = 'none';
+                return;
+            }
+            
+            let html = '';
+            products.forEach(product => {
+                html += `
+                    <div class="p-2 border-bottom suggestion-item" style="cursor: pointer;" onclick="selectProduct('${product.name}')">
+                        <div class="d-flex align-items-center">
+                            <img src="/images/${product.image}" alt="${product.name}" style="width: 40px; height: 40px; object-fit: cover;" class="me-2" onerror="this.src='/images/placeholder.jpg'">
+                            <div class="flex-grow-1">
+                                <div class="fw-bold">${product.name}</div>
+                                <small class="text-muted">${product.category} - $${product.price}</small>
+                                ${product.stock > 0 ? '<small class="text-success">In Stock</small>' : '<small class="text-danger">Out of Stock</small>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            searchSuggestions.innerHTML = html;
+            searchSuggestions.style.display = 'block';
+        }
+        
+        function selectProduct(productName) {
+            searchInput.value = productName;
+            searchSuggestions.style.display = 'none';
+            document.getElementById('filterForm').submit();
+        }
+        
+        // Quick View functionality
+        function quickView(productId) {
+            fetch(`@Url.Action("QuickView", "Product")?id=${productId}`)
+                .then(response => response.json())
+                .then(product => {
+                    const content = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <img src="/images/${product.image}" class="img-fluid" alt="${product.name}" onerror="this.src='/images/placeholder.jpg'">
+                            </div>
+                            <div class="col-md-6">
+                                <h4>${product.name}</h4>
+                                <p class="text-muted">${product.category}</p>
+                                <p>${product.description}</p>
+                                <div class="mb-3">
+                                    <span class="h4 text-primary">$${product.price}</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Stock: </strong>
+                                    ${product.stock > 0 ? 
+                                        `<span class="text-success">${product.stock} available</span>` : 
+                                        `<span class="text-danger">Out of stock</span>`
+                                    }
+                                </div>
+                                ${product.reviewCount > 0 ? `
+                                    <div class="mb-3">
+                                        <div class="d-flex align-items-center">
+                                            ${generateStars(product.averageRating)}
+                                            <span class="ms-2">(${product.reviewCount} reviews)</span>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                <div class="d-flex gap-2">
+                                    <a href="@Url.Action("Details", "Home")?id=${product.id}" class="btn btn-primary">View Details</a>
+                                    ${product.stock > 0 && @User.Identity!.IsAuthenticated.ToString().ToLower() ? 
+                                        `<button class="btn btn-success" onclick="addToCart(${product.id}); $('#quickViewModal').modal('hide');">Add to Cart</button>` : 
+                                        ''
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('quickViewContent').innerHTML = content;
+                })
+                .catch(error => {
+                    document.getElementById('quickViewContent').innerHTML = '<div class="alert alert-danger">Error loading product details</div>';
+                });
+        }
+        
+        function generateStars(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                stars += `<i class="fas fa-star ${i <= rating ? 'text-warning' : 'text-muted'}"></i>`;
+            }
+            return stars;
+        }
+        
+        // Quick filter buttons
+        function quickFilter(type, value) {
+            const form = document.getElementById('filterForm');
+            const input = form.querySelector(`[name="${type}"]`);
+            if (input) {
+                if (input.type === 'checkbox') {
+                    input.checked = value;
+                } else {
+                    input.value = value;
+                }
+                form.submit();
+            }
+        }
+    </script>
+}

@@ -1,0 +1,233 @@
+@model Product
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <img src="~/images/@Model.Image" class="img-fluid" alt="@Model.Name" onerror="this.src='/images/placeholder.jpg'">
+    </div>
+    <div class="col-md-6">
+        <h1>@Model.Name</h1>
+        <p class="text-muted">Category: @Model.Category.Name</p>
+        <p>@Model.Description</p>
+        
+        <div class="mb-3">
+            <span class="h3 text-primary">$@Model.Price.ToString("F2")</span>
+        </div>
+        
+        <div class="mb-3">
+            <strong>Stock: </strong>
+            @if (Model.Stock > 0)
+            {
+                <span class="text-success">@Model.Stock available</span>
+            }
+            else
+            {
+                <span class="text-danger">Out of stock</span>
+            }
+        </div>
+
+        @if (User.Identity!.IsAuthenticated && Model.Stock > 0)
+        {
+            <div class="mb-3">
+                <div class="input-group" style="width: 200px;">
+                    <input type="number" id="quantity" class="form-control" value="1" min="1" max="@Model.Stock">
+                    <button class="btn btn-primary" onclick="addToCart(@Model.ProductID)">
+                        <i class="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                </div>
+            </div>
+        }
+
+        <a href="@Url.Action("Index")" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Products
+        </a>
+    </div>
+</div>
+
+<!-- Reviews Section -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>Customer Reviews (@Model.Reviews.Count)</h3>
+            @if (Model.Reviews.Any())
+            {
+                <div>
+                    <span class="me-2">Average Rating:</span>
+                    @{
+                        var avgRating = Model.Reviews.Average(r => r.Rating);
+                    }
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <i class="fas fa-star @(i <= avgRating ? "text-warning" : "text-muted")"></i>
+                    }
+                    <span class="ms-1">(@avgRating.ToString("F1"))</span>
+                </div>
+            }
+        </div>
+        
+        @if (User.Identity!.IsAuthenticated)
+        {
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Write a Review</h5>
+                </div>
+                <div class="card-body">
+                    <form id="reviewForm">
+                        <div class="mb-3">
+                            <label class="form-label">Rating</label>
+                            <div class="rating-input">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="fas fa-star rating-star" data-rating="@i" style="cursor: pointer; color: #ddd;"></i>
+                                }
+                            </div>
+                            <input type="hidden" id="rating" name="rating" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Comment</label>
+                            <textarea id="comment" name="comment" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </form>
+                </div>
+            </div>
+        }
+        
+        @if (Model.Reviews.Any())
+        {
+            @foreach (var review in Model.Reviews.OrderByDescending(r => r.ReviewDate))
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h6 class="card-title">@review.Customer.FullName</h6>
+                            <div>
+                                <small class="text-muted">@review.ReviewDate.ToString("MMM dd, yyyy")</small>
+                                @if (User.Identity!.IsAuthenticated && review.CustomerID == UserManager.GetUserId(User))
+                                {
+                                    <button class="btn btn-sm btn-outline-danger ms-2" onclick="deleteReview(@review.ReviewID)">Delete</button>
+                                }
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="fas fa-star @(i <= review.Rating ? "text-warning" : "text-muted")"></i>
+                            }
+                        </div>
+                        <p class="card-text">@review.Comment</p>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No reviews yet. Be the first to review this product!</p>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let selectedRating = 0;
+        
+        // Rating stars interaction
+        document.querySelectorAll('.rating-star').forEach(star => {
+            star.addEventListener('click', function() {
+                selectedRating = parseInt(this.dataset.rating);
+                document.getElementById('rating').value = selectedRating;
+                updateStars();
+            });
+            
+            star.addEventListener('mouseover', function() {
+                const rating = parseInt(this.dataset.rating);
+                highlightStars(rating);
+            });
+        });
+        
+        document.querySelector('.rating-input').addEventListener('mouseleave', function() {
+            updateStars();
+        });
+        
+        function highlightStars(rating) {
+            document.querySelectorAll('.rating-star').forEach((star, index) => {
+                star.style.color = (index < rating) ? '#ffc107' : '#ddd';
+            });
+        }
+        
+        function updateStars() {
+            highlightStars(selectedRating);
+        }
+        
+        // Submit review
+        document.getElementById('reviewForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (selectedRating === 0) {
+                alert('Please select a rating');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('productId', @Model.ProductID);
+            formData.append('rating', selectedRating);
+            formData.append('comment', document.getElementById('comment').value);
+            
+            fetch('@Url.Action("AddReview", "Review")', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Review added successfully!');
+                    location.reload();
+                } else {
+                    alert(data.message || 'Error adding review');
+                }
+            });
+        });
+        
+        function addToCart(productId) {
+            const quantity = document.getElementById('quantity').value;
+            fetch('@Url.Action("AddToCart", "Cart")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'productId=' + productId + '&quantity=' + quantity
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Product added to cart!');
+                } else {
+                    alert(data.message || 'Error adding to cart');
+                }
+            });
+        }
+        
+        function deleteReview(reviewId) {
+            if (confirm('Are you sure you want to delete this review?')) {
+                fetch('@Url.Action("DeleteReview", "Review")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'reviewId=' + reviewId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Review deleted successfully!');
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Error deleting review');
+                    }
+                });
+            }
+        }
+    </script>
+}
