@@ -6,19 +6,19 @@
 
 <div class="text-center py-5">
     <i class="fas fa-check-circle fa-4x text-success mb-4"></i>
-    <h2>Payment Successful!</h2>
-    <p class="lead">Your order has been confirmed and payment processed</p>
+    <h2>Thanh toán thành công!</h2>
+    <p class="lead">Đơn hàng của bạn đã được xác nhận và thanh toán thành công</p>
     
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Payment Details</h5>
-                    <p><strong>Transaction ID:</strong> @payment?.TransactionID</p>
-                    <p><strong>Payment Method:</strong> @payment?.PaymentMethod</p>
-                    <p><strong>Amount Paid:</strong> $@payment?.Amount.ToString("F2")</p>
-                    <p><strong>Payment Date:</strong> @payment?.PaymentDate.ToString("MMM dd, yyyy HH:mm")</p>
-                    <p><strong>Status:</strong> <span class="badge bg-success">@payment?.Status</span></p>
+                    <h5 class="card-title">Chi tiết thanh toán</h5>
+                    <p><strong>Mã giao dịch:</strong> @payment?.TransactionID</p>
+                    <p><strong>Phương thức:</strong> @payment?.PaymentMethod</p>
+                    <p><strong>Số tiền:</strong> ₫@((payment?.Amount * 24000)?.ToString("N0"))</p>
+                    <p><strong>Ngày thanh toán:</strong> @payment?.PaymentDate.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p><strong>Trạng thái:</strong> <span class="badge bg-success">@payment?.Status</span></p>
                 </div>
             </div>
         </div>
@@ -26,18 +26,20 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Order Information</h5>
-                    <p><strong>Order ID:</strong> #@order?.OrderID</p>
-                    <p><strong>Order Date:</strong> @order?.OrderDate.ToString("MMM dd, yyyy")</p>
-                    <p><strong>Total Amount:</strong> $@order?.TotalAmount.ToString("F2")</p>
-                    <p><strong>Status:</strong> <span class="badge bg-primary">@order?.Status</span></p>
-                    <p><strong>Shipping Address:</strong> @order?.ShippingAddress</p>
+                    <h5 class="card-title">Thông tin đơn hàng</h5>
+                    <p><strong>Mã đơn hàng:</strong> #@order?.OrderID</p>
+                    <p><strong>Ngày đặt:</strong> @order?.OrderDate.ToString("dd/MM/yyyy")</p>
+                    <p><strong>Tổng tiền:</strong> ₫@((order?.TotalAmount * 24000)?.ToString("N0"))</p>
+                    <p><strong>Trạng thái:</strong> <span class="badge bg-primary">@order?.Status</span></p>
+                    <p><strong>Địa chỉ giao hàng:</strong> @order?.ShippingAddress</p>
                 </div>
             </div>
         </div>
     </div>
     
     <div class="mt-4">
-        <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Continue Shopping</a>
+        <a href="@Url.Action("Index", "Home")" class="btn btn-primary btn-lg">
+            <i class="fas fa-shopping-bag me-2"></i>Tiếp tục mua sắm
+        </a>
     </div>
 </div>

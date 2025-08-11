@@ -1,91 +1,101 @@
 @{
-    ViewData["Title"] = "Admin Dashboard";
+    ViewData["Title"] = "Bảng điều khiển Admin";
 }
 
-<h2>Admin Dashboard</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-tachometer-alt me-2 text-primary"></i>Bảng điều khiển Admin</h2>
+    <div class="text-muted">
+        <i class="fas fa-clock me-1"></i>Cập nhật: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+    </div>
+</div>
 
-<div class="row">
-    <div class="col-md-4 mb-4">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>Products</h5>
-                        <p>Manage inventory</p>
-                    </div>
-                    <div>
-                        <i class="fas fa-box fa-2x"></i>
-                    </div>
+<div class="row g-4">
+    <div class="col-lg-4 col-md-6">
+        <div class="card admin-card h-100">
+            <div class="card-body text-center">
+                <div class="admin-icon mb-3">
+                    <i class="fas fa-chart-line fa-3x"></i>
                 </div>
-                <a href="@Url.Action("Products")" class="btn btn-light btn-sm">Manage Products</a>
+                <h5 class="card-title">Phân tích doanh thu</h5>
+                <p class="card-text text-muted">Xem biểu đồ và thống kê doanh thu</p>
+                <a href="@Url.Action("Analytics")" class="btn btn-primary">
+                    <i class="fas fa-chart-bar me-2"></i>Xem thống kê
+                </a>
             </div>
         </div>
     </div>
     
-    <div class="col-md-4 mb-4">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>Orders</h5>
-                        <p>Track orders</p>
-                    </div>
-                    <div>
-                        <i class="fas fa-shopping-bag fa-2x"></i>
-                    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="card admin-card h-100">
+            <div class="card-body text-center">
+                <div class="admin-icon mb-3">
+                    <i class="fas fa-box fa-3x"></i>
                 </div>
-                <a href="@Url.Action("Orders")" class="btn btn-light btn-sm">View Orders</a>
+                <h5 class="card-title">Quản lý sản phẩm</h5>
+                <p class="card-text text-muted">Thêm, sửa, xóa sản phẩm</p>
+                <a href="@Url.Action("Products")" class="btn btn-primary">
+                    <i class="fas fa-cog me-2"></i>Quản lý
+                </a>
             </div>
         </div>
     </div>
     
-    <div class="col-md-4 mb-4">
-        <div class="card bg-info text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>Users</h5>
-                        <p>Manage customers</p>
-                    </div>
-                    <div>
-                        <i class="fas fa-users fa-2x"></i>
-                    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="card admin-card h-100">
+            <div class="card-body text-center">
+                <div class="admin-icon mb-3">
+                    <i class="fas fa-shopping-bag fa-3x"></i>
                 </div>
-                <a href="@Url.Action("Users")" class="btn btn-light btn-sm">View Users</a>
+                <h5 class="card-title">Đơn hàng</h5>
+                <p class="card-text text-muted">Theo dõi và xử lý đơn hàng</p>
+                <a href="@Url.Action("Orders")" class="btn btn-primary">
+                    <i class="fas fa-list me-2"></i>Xem đơn hàng
+                </a>
             </div>
         </div>
     </div>
     
-    <div class="col-md-4 mb-4">
-        <div class="card bg-warning text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>Payments</h5>
-                        <p>View transactions</p>
-                    </div>
-                    <div>
-                        <i class="fas fa-credit-card fa-2x"></i>
-                    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="card admin-card h-100">
+            <div class="card-body text-center">
+                <div class="admin-icon mb-3">
+                    <i class="fas fa-users fa-3x"></i>
                 </div>
-                <a href="@Url.Action("Payments")" class="btn btn-light btn-sm">View Payments</a>
+                <h5 class="card-title">Khách hàng</h5>
+                <p class="card-text text-muted">Quản lý tài khoản khách hàng</p>
+                <a href="@Url.Action("Users")" class="btn btn-primary">
+                    <i class="fas fa-user-cog me-2"></i>Quản lý
+                </a>
             </div>
         </div>
     </div>
     
-    <div class="col-md-4 mb-4">
-        <div class="card bg-secondary text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>Categories</h5>
-                        <p>Manage categories</p>
-                    </div>
-                    <div>
-                        <i class="fas fa-tags fa-2x"></i>
-                    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="card admin-card h-100">
+            <div class="card-body text-center">
+                <div class="admin-icon mb-3">
+                    <i class="fas fa-credit-card fa-3x"></i>
                 </div>
-                <a href="@Url.Action("Categories")" class="btn btn-light btn-sm">Manage Categories</a>
+                <h5 class="card-title">Thanh toán</h5>
+                <p class="card-text text-muted">Xem lịch sử giao dịch</p>
+                <a href="@Url.Action("Payments")" class="btn btn-primary">
+                    <i class="fas fa-money-check me-2"></i>Xem giao dịch
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-6">
+        <div class="card admin-card h-100">
+            <div class="card-body text-center">
+                <div class="admin-icon mb-3">
+                    <i class="fas fa-tags fa-3x"></i>
+                </div>
+                <h5 class="card-title">Danh mục</h5>
+                <p class="card-text text-muted">Quản lý danh mục sản phẩm</p>
+                <a href="@Url.Action("Categories")" class="btn btn-primary">
+                    <i class="fas fa-folder me-2"></i>Quản lý
+                </a>
             </div>
         </div>
     </div>

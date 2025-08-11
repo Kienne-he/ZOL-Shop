@@ -1,12 +1,16 @@
 @model IEnumerable<Product>
 @{
     ViewData["Title"] = "Manage Products";
+    Layout = "_AdminLayout";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Manage Products</h2>
+    <div class="admin-page-header">
+    <h2 class="admin-page-title">Quản lý sản phẩm</h2>
+    <p class="admin-page-subtitle">Quản lý danh sách sản phẩm</p>
+</div>
     <a href="@Url.Action("CreateProduct")" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Add Product
+        <i class="fas fa-plus"></i> Thêm sản phẩm
     </a>
 </div>
 
@@ -14,12 +18,12 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Actions</th>
+                <th>Hình ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th>Danh mục</th>
+                <th>Giá</th>
+                <th>Tồn kho</th>
+                <th>Thao tác</th>
             </tr>
         </thead>
         <tbody>
@@ -31,13 +35,13 @@
                     </td>
                     <td>@product.Name</td>
                     <td>@product.Category.Name</td>
-                    <td>$@product.Price.ToString("F2")</td>
+                    <td>₫@((product.Price * 24000).ToString("N0"))</td>
                     <td>@product.Stock</td>
                     <td>
-                        <a href="@Url.Action("EditProduct", new { id = product.ProductID })" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a href="@Url.Action("EditProduct", new { id = product.ProductID })" class="btn btn-sm btn-outline-primary">Sửa</a>
                         <form method="post" action="@Url.Action("DeleteProduct")" style="display: inline;">
                             <input type="hidden" name="id" value="@product.ProductID">
-                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this product?')">Delete</button>
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Xóa sản phẩm này?')">Xóa</button>
                         </form>
                     </td>
                 </tr>

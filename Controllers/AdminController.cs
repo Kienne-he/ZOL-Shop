@@ -283,5 +283,96 @@ namespace ZOLShop.Controllers
             }
             return RedirectToAction("Orders");
         }
+        
+        // Analytics
+        public IActionResult Analytics() => View();
+        
+        [HttpGet]
+        public async Task<IActionResult> GetAnalytics()
+        {
+            var currentMonth = DateTime.Now.Month;
+            var currentYear = DateTime.Now.Year;
+            
+            var monthlyRevenue = await _context.Orders
+                .Where(o => o.OrderDate.Month == currentMonth && o.OrderDate.Year == currentYear && o.Status == "Completed")
+                .SumAsync(o => o.TotalAmount * 24000);
+                
+            var monthlyOrders = await _context.Orders
+                .CountAsync(o => o.OrderDate.Month == currentMonth && o.OrderDate.Year == currentYear);
+                
+            var totalRevenue = await _context.Orders
+                .Where(o => o.Status == "Completed")
+                .SumAsync(o => o.TotalAmount * 24000);
+                
+            var newCustomers = await _context.Users
+                .CountAsync(u => u.CreatedAt.Month == currentMonth && u.CreatedAt.Year == currentYear);
+            
+            // Calculate growth percentages
+            var lastMonth = DateTime.Now.AddMonths(-1);
+            var lastMonthRevenue = await _context.Orders
+                .Where(o => o.OrderDate.Month == lastMonth.Month && o.OrderDate.Year == lastMonth.Year && o.Status == "Completed")
+                .SumAsync(o => o.TotalAmount * 24000);
+                
+            var lastMonthOrders = await _context.Orders
+                .CountAsync(o => o.OrderDate.Month == lastMonth.Month && o.OrderDate.Year == lastMonth.Year);
+                
+            var lastMonthCustomers = await _context.Users
+                .CountAsync(u => u.CreatedAt.Month == lastMonth.Month && u.CreatedAt.Year == lastMonth.Year);
+            
+            var monthlyGrowth = lastMonthRevenue > 0 ? ((monthlyRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 : 0;
+            var ordersGrowth = lastMonthOrders > 0 ? ((double)(monthlyOrders - lastMonthOrders) / lastMonthOrders) * 100 : 0;
+            var customersGrowth = lastMonthCustomers > 0 ? ((double)(newCustomers - lastMonthCustomers) / lastMonthCustomers) * 100 : 0;
+            var totalGrowth = 15.2; // Static for demo
+            
+            return Json(new {
+                monthlyRevenue,
+                monthlyOrders,
+                totalRevenue,
+                newCustomers,
+                monthlyGrowth,
+                ordersGrowth,
+                totalGrowth,
+                customersGrowth
+            });
+        }
+        
+        [HttpGet]
+        public async Task<IActionResult> GetChartData(string period = "month")
+        {
+            var revenueData = new { labels = new List<string>(), values = new List<decimal>() };
+            var productData = new { labels = new List<string>(), values = new List<int>() };
+            
+            if (period == "month")
+            {
+                // Last 12 months revenue
+                for (int i = 11; i >= 0; i--)
+                {
+                    var date = DateTime.Now.AddMonths(-i);
+                    var revenue = await _context.Orders
+                        .Where(o => o.OrderDate.Month == date.Month && o.OrderDate.Year == date.Year && o.Status == "Completed")
+                        .SumAsync(o => o.TotalAmount * 24000);
+                    
+                    revenueData.labels.Add(date.ToString("MM/yyyy"));
+                    revenueData.values.Add(revenue);
+                }
+            }
+            
+            // Top 5 products
+            var topProducts = await _context.OrderDetails
+                .Include(od => od.Product)
+                .GroupBy(od => od.Product.Name)
+                .Select(g => new { Name = g.Key, Quantity = g.Sum(od => od.Quantity) })
+                .OrderByDescending(x => x.Quantity)
+                .Take(5)
+                .ToListAsync();
+                
+            productData.labels.AddRange(topProducts.Select(p => p.Name));
+            productData.values.AddRange(topProducts.Select(p => p.Quantity));
+            
+            return Json(new {
+                revenue = revenueData,
+                products = productData
+            });
+        }
     }
 }

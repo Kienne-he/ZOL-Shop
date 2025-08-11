@@ -1,6 +1,7 @@
 @model IEnumerable<Payment>
 @{
     ViewData["Title"] = "Manage Payments";
+    Layout = "_AdminLayout";
 }
 
 <h2>Payment Transactions</h2>
@@ -27,7 +28,7 @@
                     <td>#@payment.OrderID</td>
                     <td>@payment.Order.Customer.FullName</td>
                     <td>@payment.PaymentMethod</td>
-                    <td>$@payment.Amount.ToString("F2")</td>
+                    <td>₫@((payment.Amount * 24000).ToString("N0"))</td>
                     <td>@payment.PaymentDate.ToString("MMM dd, yyyy HH:mm")</td>
                     <td>
                         <span class="badge @(payment.Status == "Completed" ? "bg-success" : payment.Status == "Pending" ? "bg-warning" : "bg-danger")">

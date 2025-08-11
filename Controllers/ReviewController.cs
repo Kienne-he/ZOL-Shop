@@ -20,30 +20,52 @@ namespace ZOLShop.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddReview(int productId, int rating, string comment)
+        public async Task<IActionResult> AddReview(int productId, int rating, string comment, bool updateOnly = false)
         {
             var userId = _userManager.GetUserId(User);
             
-            // Check if user already reviewed this product
-            var existingReview = await _context.Reviews
-                .FirstOrDefaultAsync(r => r.ProductID == productId && r.CustomerID == userId);
-
-            if (existingReview != null)
-                return Json(new { success = false, message = "You have already reviewed this product" });
-
-            var review = new Review
+            if (rating > 0)
             {
-                ProductID = productId,
-                CustomerID = userId!,
-                Rating = rating,
-                Comment = comment,
-                ReviewDate = DateTime.Now
-            };
+                // Check for existing rating by this user
+                var existingRating = await _context.Reviews
+                    .FirstOrDefaultAsync(r => r.ProductID == productId && r.CustomerID == userId && r.Rating > 0);
+                
+                if (existingRating != null)
+                {
+                    // Update existing rating
+                    existingRating.Rating = rating;
+                    existingRating.ReviewDate = DateTime.Now;
+                }
+                else
+                {
+                    // Create new rating only
+                    var ratingReview = new Review
+                    {
+                        ProductID = productId,
+                        CustomerID = userId!,
+                        Rating = rating,
+                        Comment = null,
+                        ReviewDate = DateTime.Now
+                    };
+                    _context.Reviews.Add(ratingReview);
+                }
+            }
+            else if (!string.IsNullOrEmpty(comment) && !updateOnly)
+            {
+                // Only add comment if not rating update
+                var commentReview = new Review
+                {
+                    ProductID = productId,
+                    CustomerID = userId!,
+                    Rating = 0,
+                    Comment = comment,
+                    ReviewDate = DateTime.Now
+                };
+                _context.Reviews.Add(commentReview);
+            }
 
-            _context.Reviews.Add(review);
             await _context.SaveChangesAsync();
-
-            return Json(new { success = true, message = "Review added successfully" });
+            return Json(new { success = true });
         }
 
         [HttpPost]

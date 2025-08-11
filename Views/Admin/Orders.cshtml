@@ -1,6 +1,7 @@
 @model IEnumerable<Order>
 @{
     ViewData["Title"] = "Manage Orders";
+    Layout = "_AdminLayout";
 }
 
 <h2>Manage Orders</h2>
@@ -24,7 +25,7 @@
                     <td>#@order.OrderID</td>
                     <td>@order.Customer.FullName</td>
                     <td>@order.OrderDate.ToString("MMM dd, yyyy")</td>
-                    <td>$@order.TotalAmount.ToString("F2")</td>
+                    <td>₫@((order.TotalAmount * 24000).ToString("N0"))</td>
                     <td>
                         <span class="badge @(order.Status == "Pending" ? "bg-warning" : order.Status == "Shipped" ? "bg-success" : "bg-secondary")">
                             @order.Status

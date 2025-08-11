@@ -1,6 +1,7 @@
 @model Payment
 @{
     ViewData["Title"] = "Payment Details";
+    Layout = "_AdminLayout";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -17,7 +18,7 @@
             <div class="card-body">
                 <p><strong>Transaction ID:</strong> @Model.TransactionID</p>
                 <p><strong>Payment Method:</strong> @Model.PaymentMethod</p>
-                <p><strong>Amount:</strong> $@Model.Amount.ToString("F2")</p>
+                <p><strong>Amount:</strong> ₫@((Model.Amount * 24000).ToString("N0"))</p>
                 <p><strong>Payment Date:</strong> @Model.PaymentDate.ToString("MMM dd, yyyy HH:mm")</p>
                 <p><strong>Status:</strong> 
                     <span class="badge @(Model.Status == "Completed" ? "bg-success" : Model.Status == "Pending" ? "bg-warning" : "bg-danger")">
@@ -74,15 +75,15 @@
                                 <tr>
                                     <td>@item.Product.Name</td>
                                     <td>@item.Quantity</td>
-                                    <td>$@(item.Price / item.Quantity).ToString("F2")</td>
-                                    <td>$@item.Price.ToString("F2")</td>
+                                    <td>₫@(((item.Price / item.Quantity) * 24000).ToString("N0"))</td>
+                                    <td>₫@((item.Price * 24000).ToString("N0"))</td>
                                 </tr>
                             }
                         </tbody>
                         <tfoot>
                             <tr>
                                 <th colspan="3">Total:</th>
-                                <th>$@Model.Order.TotalAmount.ToString("F2")</th>
+                                <th>₫@((Model.Order.TotalAmount * 24000).ToString("N0"))</th>
                             </tr>
                         </tfoot>
                     </table>
