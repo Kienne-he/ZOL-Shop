@@ -6,6 +6,10 @@ using ZOLShop.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure port for Render
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 // Add services to the container.
 if (builder.Environment.IsProduction())
 {
